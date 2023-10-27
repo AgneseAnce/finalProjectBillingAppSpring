@@ -6,6 +6,8 @@ import com.finalprojectbillingapp.productOrService.ProductOrServiceEntity;
 import com.finalprojectbillingapp.productOrService.ProductServiceRepository;
 import com.finalprojectbillingapp.productOrService.ServiceForProducts;
 import com.finalprojectbillingapp.user.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
@@ -51,6 +53,8 @@ public class InvoiceController {
         this.invoiceProductRepository = invoiceProductRepository;
         this.userRepository = userRepository;
     }
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @GetMapping("/new-invoice/")
     public String displayStartInvoicePage(HttpSession session) {
@@ -102,6 +106,7 @@ public class InvoiceController {
         UUID userId = loggedInUser.getId();
 
         try {
+            this.userService.editUserDetails(loggedInUser, userId);
             loggedInUser.setName(editedUser.getName());
             loggedInUser.setTaxpayerNo(editedUser.getTaxpayerNo());
             loggedInUser.setTaxpayerType(editedUser.getTaxpayerType());
@@ -109,8 +114,7 @@ public class InvoiceController {
             loggedInUser.setCountry(editedUser.getCountry());
             loggedInUser.setBankName(editedUser.getBankName());
             loggedInUser.setAccountNo(editedUser.getAccountNo());
-
-            this.userService.editUserDetails(loggedInUser, userId);
+//            entityManager.merge(loggedInUser);
             session.setAttribute("userId", userId);
 
             return "redirect:/createNewInvoice/customerData";
